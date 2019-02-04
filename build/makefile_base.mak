@@ -318,9 +318,7 @@ $(DIST_FONTS): fonts
 ALL_TARGETS += dist
 GOAL_TARGETS += dist
 
-# Only drag in WINE_OUT if they need to be built at all, otherwise this doesn't imply a rebuild of wine.  If wine is in
-# the explicit targets, specify that this should occur after.
-dist: $(DIST_TARGETS) | $(WINE_OUT) $(filter $(MAKECMDGOALS),wine64 wine32 wine) $(DST_DIR)
+dist: $(DIST_TARGETS) wine vrclient lsteamclient dxvk | $(DST_DIR)
 	rm -rf $(abspath $(DIST_PREFIX)) && \
 	WINEPREFIX=$(abspath $(DIST_PREFIX)) $(WINE_OUT_BIN) wineboot && \
 		WINEPREFIX=$(abspath $(DIST_PREFIX)) $(WINE_OUT_SERVER) -w && \
@@ -631,7 +629,7 @@ WINE32_MAKE_ARGS := \
 
 # 64bit-configure
 $(WINE_CONFIGURE_FILES64): SHELL = $(CONTAINER_SHELL64)
-$(WINE_CONFIGURE_FILES64): $(MAKEFILE_DEP) | $(WINE_OBJ64)
+$(WINE_CONFIGURE_FILES64): $(MAKEFILE_DEP) | faudio64 $(WINE_OBJ64)
 	cd $(dir $@) && \
 		STRIP=$(STRIP_QUOTED) \
 		CFLAGS="-I$(abspath $(TOOLS_DIR64))/include -I$(abspath $(SRCDIR))/contrib/include -g $(COMMON_FLAGS)" \
@@ -646,7 +644,7 @@ $(WINE_CONFIGURE_FILES64): $(MAKEFILE_DEP) | $(WINE_OBJ64)
 
 # 32-bit configure
 $(WINE_CONFIGURE_FILES32): SHELL = $(CONTAINER_SHELL32)
-$(WINE_CONFIGURE_FILES32): $(MAKEFILE_DEP) | $(WINE_OBJ32) $(WINE_ORDER_DEPS32)
+$(WINE_CONFIGURE_FILES32): $(MAKEFILE_DEP) | faudio32 $(WINE_OBJ32)
 	cd $(dir $@) && \
 		STRIP=$(STRIP_QUOTED) \
 		CFLAGS="-I$(abspath $(TOOLS_DIR32))/include -I$(abspath $(SRCDIR))/contrib/include -g $(COMMON_FLAGS)" \
